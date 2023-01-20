@@ -1,5 +1,4 @@
 #!/bin/bash
-ls
-pwd
-go mod download -x
+
+go mod download 
 swag init
