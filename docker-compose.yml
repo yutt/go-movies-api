@@ -11,7 +11,7 @@ services:
       
     env_file:
         # Ensure that the variables in .env match the same variables in devcontainer.json
-        - ./.devcontainer/.env
+        - ./.env
     ports: 
       - 8080:8080
     # Overrides default command so things don't shut down after the process ends.
@@ -29,7 +29,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
     env_file:
       # Ensure that the variables in .env match the same variables in devcontainer.json
-      - ./.devcontainer/.env
+      - ./.env
 
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.

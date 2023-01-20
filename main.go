@@ -8,7 +8,13 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/yutt/go-movies-api/docs"
+	"github.com/yutt/go-movies-api/initializers"
 )
+
+func init() {
+	//Load environment variables
+	initializers.LoadEnv()
+}
 
 // @title	Go movies API
 // @version 0.1.0.0
