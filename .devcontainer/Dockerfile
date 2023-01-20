@@ -14,19 +14,22 @@ USER root
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
 
-FROM development as build
+FROM development as builder
 
-WORKDIR /app 
+WORKDIR /app
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" .
+RUN ./prebuild.sh \
+    && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o go-movies-api .
+
+RUN ls
 
 FROM scratch
 
 WORKDIR /app
 
-COPY --from=builder /app/dev-to /usr/bin/
+COPY --from=builder /app/go-movies-api /usr/bin/
 
-ENTRYPOINT ["dev-to"]
+ENTRYPOINT ["go-movies-api"]
 
