@@ -10,17 +10,6 @@ import (
 	_ "github.com/yutt/go-movies-api/docs"
 )
 
-type user struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
-}
-
-var users = []user{
-	{User: "user1", Password: "12345"},
-	{User: "user2", Password: "12345"},
-	{User: "user3", Password: "12345"},
-}
-
 // @title	Go movies API
 // @version 0.1.0.0
 // @description	An API to create a collaborative list of films
