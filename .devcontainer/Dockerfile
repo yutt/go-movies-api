@@ -30,6 +30,7 @@ FROM scratch
 WORKDIR /app
 
 COPY --from=builder /app/go-movies-api /usr/bin/
+COPY ./.env ./usr/bin/
 
 ENTRYPOINT ["go-movies-api"]
 
