@@ -8,8 +8,8 @@ import (
 	"github.com/yutt/go-movies-api/model"
 )
 
-// @Summary      Get a list of users
-// @Description  Retuns a list of users
+// @Summary      Get the list of all users
+// @Description  Retuns the list of all users
 // @Tags         users
 // @Produce      json
 // @Success      200  {array} model.User
@@ -36,6 +36,7 @@ func UserDetails(c *gin.Context) {
 		for _, val := range model.Users {
 			if val.Id == userId {
 				c.IndentedJSON(http.StatusOK, val)
+				found = true
 				break
 			}
 		}
