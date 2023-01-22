@@ -13,6 +13,11 @@ func ConfigureEndpoints(router *gin.Engine) {
 			users.GET("/", controller.ListUsers)
 			users.GET("/:id", controller.UserDetails)
 		}
+		auth := v1.Group("auth")
+		{
+			auth.POST("/register", controller.Register)
+			auth.POST("/login", controller.Login)
+		}
 	}
 	//router.GET("/user", controller.ListUsers)
 	//router.GET("user/:id", controller.UserDetails)

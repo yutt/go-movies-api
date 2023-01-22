@@ -14,6 +14,10 @@ import (
 func init() {
 	//Load environment variables
 	initializers.LoadEnv()
+	//Connect to database
+	initializers.ConnectToDb()
+	//Sync database
+	initializers.SyncDB()
 }
 
 // @title	Go movies API

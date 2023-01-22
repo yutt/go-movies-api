@@ -1,4 +1,4 @@
 #!/bin/bash
 
 go mod download 
-swag init
+swag init --parseInternal --parseDependency

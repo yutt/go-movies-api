@@ -27,14 +27,14 @@ func ListUsers(c *gin.Context) {
 // @Failure	 	 400
 // @Failure		 404
 // @Router       /v1/users/{id} [get]
-// @Param		 id path uint64 true "search user with id"
+// @Param		 id path uint true "search user with id"
 func UserDetails(c *gin.Context) {
 	if userId, err := strconv.ParseUint(c.Param("id"), 10, 64); err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 	} else {
 		found := false
 		for _, val := range model.Users {
-			if val.Id == userId {
+			if uint64(val.ID) == userId {
 				c.IndentedJSON(http.StatusOK, val)
 				found = true
 				break
