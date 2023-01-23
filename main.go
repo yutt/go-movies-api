@@ -18,6 +18,9 @@ func init() {
 	initializers.ConnectToDb()
 	//Sync database
 	initializers.SyncDB()
+	//Initialize loggers
+	initializers.CreateLogs()
+
 }
 
 // @title	Go movies API

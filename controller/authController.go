@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -10,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/yutt/go-movies-api/initializers"
+	"github.com/yutt/go-movies-api/logger"
 	"github.com/yutt/go-movies-api/model"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -63,38 +63,70 @@ func Login(c *gin.Context) {
 	if err := c.BindJSON(&body); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
-	var user model.User
 
-	if outcome := initializers.DB.First(&user, "username = ?", body.Username); outcome.Error != nil {
-		c.AbortWithError(http.StatusBadRequest, outcome.Error)
+	//fetch user from database
+	var user model.User
+	outcome := initializers.DB.First(&user, "username = ?", body.Username)
+	if outcome.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Incorrect User or password"})
 		return
 	}
 
+	//compare password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Incorrect User or password"})
 		return
 	}
-	jwtSecret := os.Getenv("JWT_SECRET")
 
-	if jwtExpirationHours, err := strconv.Atoi(os.Getenv("JWT_EXPIRATION_HOURS")); err != nil {
+	//generate token
+	var (
+		jwtSecret          = os.Getenv("JWT_SECRET")
+		jwtExpirationHours int
+		err                error
+	)
+	if jwtExpirationHours, err = strconv.Atoi(os.Getenv("JWT_EXPIRATION_HOURS")); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Application misconfiguration"})
-		log.Fatalf("JWT_EXPIRATION_HOURS is not a valid integer: %v", err)
+		logger.Error.Printf("JWT_EXPIRATION_HOURS is either not set or not a valid integer: %v", err)
 		return
-	} else {
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"username": user.Username,
-			"exp":      time.Now().Add(time.Hour * time.Duration(jwtExpirationHours)).Unix(),
-			"UserID":   user.ID,
-		})
-
-		tokenString, err := token.SignedString([]byte(jwtSecret))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error signing token"})
-			return
-		} else {
-			c.JSON(http.StatusOK, gin.H{"token": tokenString})
-		}
 	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp": time.Now().Add(time.Hour * time.Duration(jwtExpirationHours)).Unix(),
+		"ID":  user.ID,
+	})
+
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		logger.Error.Printf("Error signing token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error signing token"})
+	} else {
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie("Authorization", tokenString, 3600, "", "", false, true)
+		c.JSON(http.StatusOK, gin.H{"Authorization": tokenString})
+	}
+
+}
+
+// @Summary      Return information about the logged-in user
+// @Description  Return information about the logged-in user
+// @Tags         auth
+// @Produce      json
+// @Success      200
+// @Failure	 	 500
+// @Failure		 400
+// @Router       /v1/auth/me [get]
+// @Security     ApiKeyAuth
+// @param Authorization header string true "Authorization"
+func Me(c *gin.Context) {
+
+	//quitar
+
+	var user model.User
+	if wannabeUser, exists := c.Get("user"); !exists {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	} else {
+		user = wannabeUser.(model.User)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": user})
 }

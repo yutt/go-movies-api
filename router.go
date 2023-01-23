@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/yutt/go-movies-api/controller"
+	"github.com/yutt/go-movies-api/middleware"
 )
 
 func ConfigureEndpoints(router *gin.Engine) {
@@ -17,6 +18,7 @@ func ConfigureEndpoints(router *gin.Engine) {
 		{
 			auth.POST("/register", controller.Register)
 			auth.POST("/login", controller.Login)
+			auth.GET("/me", middleware.RequireLogin, controller.Me)
 		}
 	}
 	//router.GET("/user", controller.ListUsers)
