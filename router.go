@@ -20,6 +20,15 @@ func ConfigureEndpoints(router *gin.Engine) {
 			auth.POST("/login", controller.Login)
 			auth.GET("/me", middleware.RequireLogin, controller.Me)
 		}
+		films := v1.Group("films")
+		{
+			films.GET("/", middleware.RequireLogin, controller.GetFilms)
+			films.GET("/:id", middleware.RequireLogin, controller.GetFilm)
+			films.POST("/", middleware.RequireLogin, controller.CreateFilm)
+
+			films.PUT("/:id", middleware.RequireLogin, controller.UpdateFilm)
+			films.DELETE("/:id", middleware.RequireLogin, controller.DeleteFilm)
+		}
 	}
 	//router.GET("/user", controller.ListUsers)
 	//router.GET("user/:id", controller.UserDetails)
